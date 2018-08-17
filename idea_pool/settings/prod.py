@@ -8,23 +8,8 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = False
 
 # List of hosts allowed to access the app
-ALLOWED_HOSTS = ['localhost', '127.0.0.1',]
-CORS_ORIGIN_WHITELIST = (
-    # API origins
-    'localhost:8000',
-    '127.0.0.1:8000',
-    # Client origins
-    'localhost:8080',
-    '127.0.0.1:8080',
-)
-CORS_ALLOW_METHODS = (
-        'GET',
-        'POST',
-        'PUT',
-        'PATCH',
-        'DELETE',
-        'OPTIONS'
-    )
+ALLOWED_HOSTS = []
+
 # =======================================================================
 # APPLICATIONS
 # On application start-up, Django looks for migrations files for each app
