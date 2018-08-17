@@ -8,6 +8,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/dev/ref/settings/
 """
 import os, datetime
+from datetime import timedelta
 from os.path import dirname
 
 # Build paths inside the project like this: os.path.join(SETTINGS_DIR, ...)
@@ -30,12 +31,13 @@ DEBUG = False
 # SECURITY SETTINGS
 # =======================================================================
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+JWT_SECRET = os.getenv('JWT_SECRET')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1',]
-
+APPEND_SLASH = True
 # =======================================================================
 # APPLICATIONS
 # On application start-up, Django looks for migrations files for each app
@@ -57,6 +59,7 @@ DJANGO_APPS = [
 EXTERNAL_APPS = [
     # Tools
     'rest_framework',
+    'rest_framework.authtoken',
     'django_extensions',
     'rest_framework_extensions',
     'rest_framework_jwt',
@@ -126,19 +129,19 @@ USE_TZ = True
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.getenv('WRITTEN_DB_NAME'),
-        'HOST': os.getenv('WRITTEN_DB_HOST'),
-        'PORT': os.getenv('WRITTEN_DB_PORT'),
-        'USER': os.getenv('WRITTEN_DB_USER'),
-        'PASSWORD': os.getenv('WRITTEN_DB_PASSWORD'),
+        'NAME': os.getenv('DB_NAME'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
     },
     'test': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.getenv('WRITTEN_TEST_DB_NAME'),
-        'HOST': os.getenv('WRITTEN_TEST_DB_HOST'),
-        'PORT': os.getenv('WRITTEN_TEST_DB_PORT'),
-        'USER': os.getenv('WRITTEN_TEST_DB_USER'),
-        'PASSWORD': os.getenv('WRITTEN_TEST_DB_PASSWORD'),
+        'NAME': os.getenv('TEST_DB_NAME'),
+        'HOST': os.getenv('TEST_DB_HOST'),
+        'PORT': os.getenv('TEST_DB_PORT'),
+        'USER': os.getenv('TEST_DB_USER'),
+        'PASSWORD': os.getenv('TEST_DB_PASSWORD'),
     },
 }
 
@@ -183,15 +186,20 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10,
 }
 
+JWT_EXP_DELTA = datetime.timedelta(seconds=600)
+JWT_ALGORITHM = 'HS256'
+JWT_REFRESH_EXP_DELTA = datetime.timedelta(days=7)
+
 JWT_AUTH = {
-    'JWT_SECRET_KEY': os.getenv('DJANGO_SECRET_KEY'),
+    'JWT_SECRET_KEY': SECRET_KEY,
     'JWT_ALLOW_REFRESH': True,
     'JWT_AUTH_HEADER_PREFIX': 'JWT',
 
     'JWT_ENCODE_HANDLER': 'rest_framework_jwt.utils.jwt_encode_handler',
     'JWT_DECODE_HANDLER': 'rest_framework_jwt.utils.jwt_decode_handler',
     'JWT_PAYLOAD_HANDLER': 'rest_framework_jwt.utils.jwt_payload_handler',
-    'JWT_PAYLOAD_GET_USER_ID_HANDLER': 'rest_framework_jwt.utils.jwt_get_user_id_from_payload_handler',
+    'JWT_PAYLOAD_GET_USER_ID_HANDLER':
+        'rest_framework_jwt.utils.jwt_get_user_id_from_payload_handler',
 
     'JWT_RESPONSE_PAYLOAD_HANDLER': 'rest_framework_jwt.utils.jwt_response_payload_handler',
     'JWT_GET_USER_SECRET_KEY': None,

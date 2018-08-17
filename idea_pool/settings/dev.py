@@ -4,6 +4,7 @@ from .common import *
 # SECURITY SETTINGS
 # =======================================================================
 SECRET_KEY = 'z-c0r=jq#%kx3myqw6%qh_126x*vi#8^clm-r6=6-4wy+$03%s'
+JWT_SECRET = 'secret'
 DEBUG = True
 
 # List of hosts allowed to access the app
@@ -16,7 +17,14 @@ CORS_ORIGIN_WHITELIST = (
     'localhost:8080',
     '127.0.0.1:8080',
 )
-
+CORS_ALLOW_METHODS = (
+        'GET',
+        'POST',
+        'PUT',
+        'PATCH',
+        'DELETE',
+        'OPTIONS'
+    )
 # =======================================================================
 # APPLICATIONS
 # On application start-up, Django looks for migrations files for each app
@@ -90,6 +98,9 @@ AUTH_PASSWORD_VALIDATORS += [
 # The credentials below are NOT FOR PRODUCTION. Overwrite them by editing
 # your dev.py
 # =======================================================================
+JWT_EXP_DELTA = datetime.timedelta(seconds=600)
+JWT_ALGORITHM = 'HS256'
+JWT_REFRESH_EXP_DELTA = datetime.timedelta(days=7)
 
 JWT_AUTH = {
     'JWT_SECRET_KEY': SECRET_KEY,
@@ -110,7 +121,7 @@ JWT_AUTH = {
     'JWT_VERIFY': True,
     'JWT_VERIFY_EXPIRATION': True,
     'JWT_LEEWAY': 0,
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=300),
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=6000),
     'JWT_AUDIENCE': None,
     'JWT_ISSUER': None,
     'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
