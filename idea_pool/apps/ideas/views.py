@@ -37,7 +37,7 @@ class IdeaListView(ListCreateAPIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class IdeaDashboardView(RetrieveUpdateDestroyAPIView):
+class IdeaDetailView(RetrieveUpdateDestroyAPIView):
     queryset = Idea.objects.all()
     serializer_class = IdeaSerializer
     permission_classes = (IsAuthenticated,)
@@ -53,7 +53,6 @@ class IdeaListCreateAPIView(ListCreateAPIView):
     pagination_class = PageNumberPagination
 
     def get(self, request, *args, **kwargs):
-        # TODO: order_by("-average_score") is not reversing order.
         ideas = self.get_queryset().order_by("-average_score")
         paginator = PageNumberPagination()
         result_page = paginator.paginate_queryset(ideas, request)

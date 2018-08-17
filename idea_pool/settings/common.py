@@ -8,7 +8,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/dev/ref/settings/
 """
 import os, datetime
-from datetime import timedelta
 from os.path import dirname
 
 # Build paths inside the project like this: os.path.join(SETTINGS_DIR, ...)
@@ -20,9 +19,6 @@ APP_ROOT = dirname(SETTINGS_DIR)
 
 # Project Dir: idea_pool/manage.py
 PROJECT_DIR = dirname(APP_ROOT)
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
@@ -38,6 +34,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1',]
 APPEND_SLASH = True
+
 # =======================================================================
 # APPLICATIONS
 # On application start-up, Django looks for migrations files for each app

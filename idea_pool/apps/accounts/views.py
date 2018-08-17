@@ -1,4 +1,4 @@
-import datetime, logging
+import logging
 import jwt
 
 from django.conf import settings
@@ -7,14 +7,14 @@ from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import status
 
 from rest_framework.authtoken.models import Token
-from rest_framework.generics import  ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.mixins import DestroyModelMixin
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .auth import JWTAuthentication
+from .auth import JWTAuthentication, prepare_jwt
 from .serializers import User, UserSerializer, AuthTokenSerializer
 
 logger = logging.getLogger('idea_pool.accounts.views')
@@ -30,8 +30,8 @@ class AuthTokenView(APIView, DestroyModelMixin):
         serializer = self.serializer_class(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
+        jwt_token = prepare_jwt(user)
         token = serializer.validated_data['refresh_token']
-        jwt_token = jwt.encode(user, settings.JWT_SECRET, algorithm='HS256')
         return Response({'jwt': jwt_token, 'refresh_token': token.key},
                         status=status.HTTP_201_CREATED)
 
@@ -83,27 +83,20 @@ class UserListCreateAPIView(ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            try:
-                serializer.save()
-                payload = serializer.data
-                payload['exp'] = datetime.datetime.utcnow() + settings.JWT_EXP_DELTA
-                payload['iat'] = datetime.datetime.utcnow()
-                jwt_token = jwt.encode(payload, settings.JWT_SECRET,
-                                       algorithm=settings.JWT_ALGORITHM)
-                user = User.objects.get(email=payload['email'])
-                token, created = Token.objects.get_or_create(user=user)
-            except Exception:
-                raise
-            else:
-                tokens = {'jwt': jwt_token, 'refresh_token': token.key}
-                return Response(tokens, status=status.HTTP_201_CREATED)
+            serializer.save()
+            payload = serializer.validated_data['user']
+            jwt_token = prepare_jwt(payload)
+            tokens = {
+                'jwt': jwt_token,
+                'refresh_token': serializer.validated_data['refresh_token']}
+            return Response(tokens, status=status.HTTP_201_CREATED)
         else:
             logger.debug("Request data: %s | User: %s", (request.data, request.user))
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserRetrieveEditAPIView(RetrieveUpdateDestroyAPIView):
-    """For api/v1/ rquests."""
+    """For api/v1/ requests."""
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = (IsAuthenticated,)

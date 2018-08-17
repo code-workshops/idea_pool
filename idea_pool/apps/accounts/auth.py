@@ -1,4 +1,6 @@
-import jwt, logging
+import datetime
+import jwt
+import logging
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -12,6 +14,14 @@ jwt_decode_handler = api_settings.JWT_DECODE_HANDLER
 jwt_get_username_from_payload = api_settings.JWT_PAYLOAD_GET_USERNAME_HANDLER
 
 logger = logging.getLogger('idea_pool.accounts.auth')
+
+
+def prepare_jwt(payload):
+    payload['exp'] = datetime.datetime.utcnow() + settings.JWT_EXP_DELTA
+    payload['iat'] = datetime.datetime.utcnow()
+    jwt_token = jwt.encode(payload, settings.JWT_SECRET,
+                           algorithm=settings.JWT_ALGORITHM)
+    return jwt_token
 
 
 class JWTAuthentication(BaseAuthentication):

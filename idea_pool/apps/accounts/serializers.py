@@ -1,6 +1,7 @@
 import logging
 
 from django.contrib.auth import authenticate
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 
@@ -36,7 +37,7 @@ class AuthTokenSerializer(serializers.Serializer):
         serializer = UserSerializer(user)
         attrs['user'] = serializer.data
         attrs['refresh_token'], created = Token.objects.get_or_create(user=user)
-        logger.info(attrs['user'])
+        logger.debug(attrs['user'])
         return attrs
 
 
@@ -46,13 +47,12 @@ class RefreshTokenSerializer(serializers.Serializer):
     def validate(self, attrs):
         try:
             token = Token.objects.get(key=attrs.get('token'))
-        except Exception as exc:
+        except ObjectDoesNotExist:
             raise serializers.ValidationError('Token does not exist.')
         else:
             user = token.user
             token.delete()
             new_token = Token.objects.create(user=user)
-
 
         attrs['token'] = new_token
         attrs['user'] = UserSerializer(new_token.user).data
