@@ -7,6 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from rest_framework import status
 
+from rest_framework.authentication import BasicAuthentication
 from rest_framework.authtoken.models import Token
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.mixins import DestroyModelMixin
@@ -22,6 +23,9 @@ logger = logging.getLogger('idea_pool.accounts.views')
 
 
 class AuthTokenView(APIView, DestroyModelMixin):
+    """
+    Handles token authentication for JWT and Refresh.
+    """
     serializer_class = AuthTokenSerializer
     permission_classes = (AllowAny,)
     parser_classes = (JSONParser,)

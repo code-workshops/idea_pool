@@ -11,10 +11,19 @@ logger = logging.getLogger('idea_pool.accounts.serializers')
 
 
 class UserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(
+        style={'input_type': 'password'},
+        trim_whitespace=False, write_only=True
+    )
 
     class Meta:
         model = User
-        fields = ('name', 'email', 'avatar_url',)
+        fields = ('name', 'email', 'avatar_url', 'password',)
+
+    def create(self, validated_data):
+        user = User.objects.create_user(validated_data['email'], **validated_data)
+        logger.debug("UserSerializer created: %s", user)
+        return user
 
 
 class AuthTokenSerializer(serializers.Serializer):
