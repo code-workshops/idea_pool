@@ -17,7 +17,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .auth import JWTAuthentication, prepare_jwt
-from .serializers import User, UserSerializer, AuthTokenSerializer
+from .serializers import User, UserSerializer, AuthTokenSerializer, RefreshTokenSerializer
 
 logger = logging.getLogger('idea_pool.accounts.views')
 
@@ -55,7 +55,7 @@ class AuthTokenView(APIView, DestroyModelMixin):
 
 
 class RefreshTokenView(APIView):
-    serializer_class = AuthTokenSerializer
+    serializer_class = RefreshTokenSerializer
     permission_classes = (AllowAny,)
     parser_classes = (JSONParser,)
 
@@ -64,7 +64,7 @@ class RefreshTokenView(APIView):
         serializer = self.serializer_class(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
-        token = serializer.validated_data['token'].key
+        token = serializer.validated_data['refresh_token'].key
         jwt_token = jwt.encode(user, settings.JWT_SECRET, algorithm='HS256')
         return Response({'jwt': jwt_token, 'refresh_token': token})
 

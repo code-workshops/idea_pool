@@ -49,11 +49,11 @@ class AuthTokenSerializer(serializers.Serializer):
 
 
 class RefreshTokenSerializer(serializers.Serializer):
-    token = serializers.CharField()
+    refresh_token = serializers.CharField()
 
     def validate(self, attrs):
         try:
-            token = Token.objects.get(key=attrs.get('token'))
+            token = Token.objects.get(key=attrs.get('refresh_token'))
         except ObjectDoesNotExist:
             raise serializers.ValidationError('Token does not exist.')
         else:
@@ -61,6 +61,6 @@ class RefreshTokenSerializer(serializers.Serializer):
             token.delete()
             new_token = Token.objects.create(user=user)
 
-        attrs['token'] = new_token
+        attrs['refresh_token'] = new_token
         attrs['user'] = UserSerializer(new_token.user).data
         return attrs
