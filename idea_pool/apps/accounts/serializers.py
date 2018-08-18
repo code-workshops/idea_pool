@@ -1,5 +1,7 @@
+import datetime
 import logging
 
+from django.conf import settings
 from django.contrib.auth import authenticate
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
@@ -58,9 +60,6 @@ class RefreshTokenSerializer(serializers.Serializer):
             raise serializers.ValidationError('Token does not exist.')
         else:
             user = token.user
-            token.delete()
-            new_token = Token.objects.create(user=user)
 
-        attrs['refresh_token'] = new_token
-        attrs['user'] = UserSerializer(new_token.user).data
+        attrs['user'] = UserSerializer(user).data
         return attrs

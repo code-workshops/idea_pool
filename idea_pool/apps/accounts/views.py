@@ -64,9 +64,8 @@ class RefreshTokenView(APIView):
         serializer = self.serializer_class(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
-        token = serializer.validated_data['refresh_token'].key
         jwt_token = jwt.encode(user, settings.JWT_SECRET, algorithm='HS256')
-        return Response({'jwt': jwt_token, 'refresh_token': token})
+        return Response({'jwt': jwt_token})
 
 
 class UserDashboardView(RetrieveUpdateDestroyAPIView):
