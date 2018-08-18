@@ -5,7 +5,7 @@ from .common import *
 # SECURITY SETTINGS
 # =======================================================================
 SECRET_KEY = os.getenv('SECRET_KEY')
-DEBUG = False
+DEBUG = True
 
 # List of hosts allowed to access the app
 ALLOWED_HOSTS = []

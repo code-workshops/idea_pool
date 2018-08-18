@@ -21,6 +21,7 @@ class IdeaListView(ListCreateAPIView):
     lookup_field = 'uid'
 
     def get(self, request, *args, **kwargs):
+        # TODO: Requirements did not state if the user only has access to their own ideas!
         ideas = self.get_queryset().order_by('-average_score')
         paginator = PageNumberPagination()
         result_page = paginator.paginate_queryset(ideas, request)

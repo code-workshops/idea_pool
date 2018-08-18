@@ -1,3 +1,4 @@
+import copy
 import logging
 import jwt
 
@@ -29,9 +30,11 @@ class AuthTokenView(APIView, DestroyModelMixin):
         """Authenticate user and return JWT, refresh."""
         serializer = self.serializer_class(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
-        jwt_token = prepare_jwt(user)
-        token = serializer.validated_data['refresh_token']
+        payload = serializer.validated_data
+        logger.info("user data: %s ", payload)
+        user = User.objects.get(email=serializer.validated_data['email'])
+        jwt_token = prepare_jwt(payload)
+        token, _ = Token.objects.get_or_create(user=user)
         return Response({'jwt': jwt_token, 'refresh_token': token.key},
                         status=status.HTTP_201_CREATED)
 
@@ -81,18 +84,21 @@ class UserListCreateAPIView(ListCreateAPIView):
     permission_classes = (AllowAny,)
 
     def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            payload = serializer.validated_data['user']
+        logger.info("Creating with: %s", request.data)
+        payload = copy.copy(request.data)
+        response = super(UserListCreateAPIView, self).post(request)
+        if response.status_code == status.HTTP_201_CREATED:
+            logger.info("Data: %s", response.data)
             jwt_token = prepare_jwt(payload)
+            user = User.objects.get(email=payload['email'])
+            token = Token.objects.create(user=user)
             tokens = {
                 'jwt': jwt_token,
-                'refresh_token': serializer.validated_data['refresh_token']}
+                'refresh_token': token.key}
             return Response(tokens, status=status.HTTP_201_CREATED)
         else:
             logger.debug("Request data: %s | User: %s", (request.data, request.user))
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserRetrieveEditAPIView(RetrieveUpdateDestroyAPIView):

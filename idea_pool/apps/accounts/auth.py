@@ -55,6 +55,7 @@ class JWTAuthentication(BaseAuthentication):
         """
         Returns an active user that matches the payload's user id and email.
         """
+        logger.info("Auth payload: %s", payload)
         User = get_user_model()
         username = payload.get('email')
 

@@ -25,20 +25,18 @@ class AuthTokenSerializer(serializers.Serializer):
     )
 
     def validate(self, attrs):
-        logger.info(attrs)
+        logger.info("Start: %s", attrs)
         username = attrs.get('email')
         password = attrs.get('password')
 
         if username and password:
             user = authenticate(request=self.context.get('request'),
                                 email=username, password=password)
-        else:
-            serializers.ValidationError('User authentication failed.')
-        serializer = UserSerializer(user)
-        attrs['user'] = serializer.data
-        attrs['refresh_token'], created = Token.objects.get_or_create(user=user)
-        logger.debug(attrs['user'])
-        return attrs
+
+            serializer = UserSerializer(user)
+            attrs['user'] = serializer.data
+            logger.info(attrs)
+            return attrs
 
 
 class RefreshTokenSerializer(serializers.Serializer):

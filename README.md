@@ -11,7 +11,16 @@ The particular requirements that caused me to go with custom work are:
 * Refresh token
 * Custom endpoints (such as /me, /access-tokens, etc)
 
-### TODO
-1. Check that tokens are properly expiring
-2. Deploy to Heroku
-3. Email links
+`dev.py` is included for this demo for ease of setup, but this should usually NOT be committed to git!
+
+# Setup
+
+After configuring your database settings in dev.py:
+
+```
+virtualenv venv
+pip install -r requirements/dev.txt
+python manage.py migrate
+
+python manage.py runserver
+```
