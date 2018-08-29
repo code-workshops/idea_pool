@@ -12,7 +12,7 @@ from .serializers import Idea, IdeaSerializer
 logger = logging.getLogger('idea_pool.ideas.views')
 
 
-class IdeaListView(ListCreateAPIView):
+class IdeaListCreateView(ListCreateAPIView):
     queryset = Idea.objects.all()
     serializer_class = IdeaSerializer
     authentication_classes = (JWTAuthentication,)

@@ -14,7 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import include, path, re_path
 from django.conf import settings
 
 from rest_framework.documentation import include_docs_urls
@@ -22,12 +22,12 @@ from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token, verify
 
 from accounts.views import (AuthTokenView, RefreshTokenView, UserDashboardView,
                             UserListCreateAPIView)
-from ideas.views import IdeaDetailView, IdeaListView
+from ideas.views import IdeaDetailView, IdeaListCreateView
 
 urlpatterns = [
     path('admin', admin.site.urls),
     path('docs', include_docs_urls(title="Idea Pool API")),
-    # DRF JWT Approach
+    # Standard DRF JWT Approach
     path('api-auth', include('rest_framework.urls')),
     path('api/v1', include('api_urls', namespace='api')),
     path('api-token-auth/', obtain_jwt_token),
@@ -35,12 +35,12 @@ urlpatterns = [
     path('api-token-verify/', verify_jwt_token),
 
     # Custom JWT Approach
-    path('access-tokens', AuthTokenView.as_view()),
-    path('access-tokens/refresh', RefreshTokenView.as_view()),
+    path('access-tokens', AuthTokenView.as_view(), name='access-tokens'),
+    path('access-tokens/refresh', RefreshTokenView.as_view(), name='refresh-token'),
     path('me', UserDashboardView.as_view(), name='dashboard'),
     path('users', UserListCreateAPIView.as_view(), name='users-create'),
     path('ideas/<uid>', IdeaDetailView.as_view(), name='ideas-detail'),
-    path('ideas', IdeaListView.as_view(), name='ideas-dash'),
+    re_path('ideas.*', IdeaListCreateView.as_view(), name='ideas-dash'),
 ]
 
 if settings.DEBUG:

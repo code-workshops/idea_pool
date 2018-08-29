@@ -7,7 +7,6 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from rest_framework import status
 
-from rest_framework.authentication import BasicAuthentication
 from rest_framework.authtoken.models import Token
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.mixins import DestroyModelMixin
@@ -35,7 +34,7 @@ class AuthTokenView(APIView, DestroyModelMixin):
         serializer = self.serializer_class(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         payload = serializer.validated_data
-        logger.info("user data: %s ", payload)
+        logger.debug("user data: %s ", payload)
         user = User.objects.get(email=serializer.validated_data['email'])
         jwt_token = prepare_jwt(payload)
         token, _ = Token.objects.get_or_create(user=user)
@@ -64,6 +63,8 @@ class RefreshTokenView(APIView):
         serializer = self.serializer_class(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
+        logger.info("Refresh user: ")
+        logger.info(user)
         jwt_token = jwt.encode(user, settings.JWT_SECRET, algorithm='HS256')
         return Response({'jwt': jwt_token})
 
@@ -87,11 +88,12 @@ class UserListCreateAPIView(ListCreateAPIView):
     permission_classes = (AllowAny,)
 
     def post(self, request, *args, **kwargs):
-        logger.info("Creating with: %s", request.data)
+        logger.info("Creating user")
         payload = copy.copy(request.data)
         response = super(UserListCreateAPIView, self).post(request)
         if response.status_code == status.HTTP_201_CREATED:
             logger.info("Data: %s", response.data)
+            payload = {'email': payload['email']}  # Reset payload
             jwt_token = prepare_jwt(payload)
             user = User.objects.get(email=payload['email'])
             token = Token.objects.create(user=user)

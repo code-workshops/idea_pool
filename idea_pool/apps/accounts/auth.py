@@ -35,7 +35,9 @@ class JWTAuthentication(BaseAuthentication):
         jwt_value = request.META.get('HTTP_AUTHORIZATION', b'').split()
 
         if jwt_value is None or len(jwt_value) == 0:
-            return None
+            jwt_value = request.META.get('HTTP_X_ACCESS_TOKEN', b'').split()
+            if jwt_value is None or len(jwt_value) == 0:
+                return None
 
         try:
             payload = jwt.decode(jwt_value[0], settings.JWT_SECRET,
@@ -55,7 +57,8 @@ class JWTAuthentication(BaseAuthentication):
         """
         Returns an active user that matches the payload's user id and email.
         """
-        logger.info("Auth payload: %s", payload)
+        logger.info("JWT Cred Auth...")
+        logger.debug("Auth payload: %s", payload)
         User = get_user_model()
         username = payload.get('email')
 

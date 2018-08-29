@@ -35,7 +35,7 @@ class Idea(TimeStampedModel):
 def calculate_average_score(sender, instance, **kwargs):
     """Signal to re-calculate Idea.average_score every time it's updated."""
     logger.info("Signal post_save score... ")
-    logger.info(kwargs)
+    logger.debug(kwargs)
     post_save.disconnect(calculate_average_score, sender=sender)
     instance.average_score = instance.calculate_average()
     instance.save()

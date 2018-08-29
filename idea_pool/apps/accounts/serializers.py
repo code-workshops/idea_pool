@@ -17,6 +17,9 @@ class UserSerializer(serializers.ModelSerializer):
         style={'input_type': 'password'},
         trim_whitespace=False, write_only=True
     )
+    name = serializers.CharField(required=False)
+    email = serializers.CharField(required=False)
+    avatar_url = serializers.CharField(required=False)
 
     class Meta:
         model = User
@@ -36,7 +39,7 @@ class AuthTokenSerializer(serializers.Serializer):
     )
 
     def validate(self, attrs):
-        logger.info("Start: %s", attrs)
+        logger.debug("Start: %s", attrs)
         username = attrs.get('email')
         password = attrs.get('password')
 
@@ -46,7 +49,6 @@ class AuthTokenSerializer(serializers.Serializer):
 
             serializer = UserSerializer(user)
             attrs['user'] = serializer.data
-            logger.info(attrs)
             return attrs
 
 
