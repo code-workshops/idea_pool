@@ -1,7 +1,5 @@
-import datetime
 import logging
 
-from django.conf import settings
 from django.contrib.auth import authenticate
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
@@ -46,10 +44,12 @@ class AuthTokenSerializer(serializers.Serializer):
         if username and password:
             user = authenticate(request=self.context.get('request'),
                                 email=username, password=password)
-
-            serializer = UserSerializer(user)
-            attrs['user'] = serializer.data
-            return attrs
+            if user:
+                serializer = UserSerializer(user)
+                attrs['user'] = serializer.data
+                return attrs
+            else:
+                raise serializers.ValidationError('Invalid login credentials.')
 
 
 class RefreshTokenSerializer(serializers.Serializer):

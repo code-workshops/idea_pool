@@ -19,15 +19,15 @@ class Idea(TimeStampedModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ideas')
 
     # Fields
-    content = models.TextField()
-    impact = models.IntegerField(default=0.0)
-    ease = models.IntegerField(default=0.0)
-    confidence = models.IntegerField(default=0.0)
+    content = models.CharField(max_length=255)
+    impact = models.IntegerField()
+    ease = models.IntegerField()
+    confidence = models.IntegerField()
     average_score = models.FloatField(null=True, blank=True)
 
     def calculate_average(self):
         scores = [self.impact, self.ease, self.confidence]
-        return round(sum(scores) / len(scores), 2)
+        return float(round(sum(scores) / len(scores), 1))
 
 
 # Signals
