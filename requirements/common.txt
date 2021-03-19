@@ -3,7 +3,7 @@
 # Also requires: None
 # ^^^^^^^^^^^^^^^^^^^^^^^^
 Django==2.0.2
-djangorestframework==3.8.2
+djangorestframework==3.11.2
 djangorestframework-jwt==1.11.0
 django-extensions==2.0.7
 django-model-utils==3.1.1
